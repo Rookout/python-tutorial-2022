@@ -1,53 +1,68 @@
-from fastapi import FastAPI, Request
+from fastapi import Request, HTTPException, APIRouter
 from uuid import uuid4
-from models.item import Item
-from typing import List, Dict
+from models.item import Item, ItemForCreateOrUpdate
+from typing import List
 
-db: Dict[str, Item] = dict()
-
-tutorial_app = FastAPI()
-
-
-@tutorial_app.get('/')
-def get_all() -> List[Item]:
-    return list(db.values())
+router = APIRouter(prefix='/api')
+cache = dict()
 
 
-@tutorial_app.get('/{item_id}')
-def get_by_id(item_id) -> Item:
-    return db[item_id]
+@router.get('/')
+async def get_all() -> List[Item]:
+    return list(cache.values())
 
 
-@tutorial_app.post('/')
-def create_item(item: Item, request: Request) -> Item:
+@router.get('/{item_id}')
+async def get_by_id(item_id) -> Item:
+    item = cache.get(item_id, None)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@router.post('/')
+async def create_item(item: ItemForCreateOrUpdate, request: Request) -> Item:
     new_item_id = str(uuid4())
-    item.id = new_item_id
-    item.url = f'{request.base_url}{new_item_id}'
-    if item.completed is None:
-        item.completed = False
-    db[new_item_id] = item
-    return db[new_item_id]
+    created_item = Item(
+        id=new_item_id,
+        name=item.name,
+        url=f'{request.base_url}api/{new_item_id}',
+        completed=item.completed
+    )
+
+    if created_item.completed is None:
+        created_item.completed = False
+    cache[new_item_id] = created_item
+    return created_item
 
 
-@tutorial_app.patch('/{item_id}')
-def edit_item(item_id: str, item: Item) -> Item:
-    item.id = item_id
-    if item.completed is None:
-        item.completed = db[item_id].completed
-    if item.url is None:
-        item.url = db[item_id].url
-    if item.completed is None:
-        item.completed = False
-    db[item_id] = item
-    return db[item_id]
+@router.patch('/{item_id}')
+async def edit_item(item_id: str, item: ItemForCreateOrUpdate) -> Item:
+    saved_item = cache.get(item_id, None)
+
+    if saved_item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    updated_item = Item(
+        id=item_id,
+        name=item.name,
+        completed=item.completed,
+        url=saved_item.url
+    )
+    if updated_item.completed is None:
+        updated_item.completed = saved_item.completed
+    cache[item_id] = updated_item
+    return updated_item
 
 
-@tutorial_app.delete('/')
-def delete_all():
-    db.clear()
-    return db
+@router.delete('/')
+async def delete_all():
+    cache.clear()
 
 
-@tutorial_app.delete('/{item_id}')
-def delete_item(item_id):
-    del db[item_id]
+@router.delete('/{item_id}')
+async def delete_item(item_id):
+    saved_item = cache.get(item_id, None)
+
+    if saved_item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    del cache[item_id]

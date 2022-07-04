@@ -2,8 +2,11 @@ from pydantic import BaseModel
 from typing import Union
 
 
-class Item(BaseModel):
-    id: Union[str, None] = None
-    name: Union[str, None] = None
+class ItemForCreateOrUpdate(BaseModel):
+    name: str
     completed: Union[bool, None] = None
-    url: Union[str, None] = None
+
+
+class Item(ItemForCreateOrUpdate):
+    id: str
+    url: str
