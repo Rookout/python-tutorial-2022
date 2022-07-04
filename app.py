@@ -3,7 +3,7 @@ from uuid import uuid4
 from models.item import Item, ItemForCreateOrUpdate
 from typing import List
 
-router = APIRouter(prefix='/api')
+router = APIRouter(prefix='/todos')
 cache = dict()
 
 
