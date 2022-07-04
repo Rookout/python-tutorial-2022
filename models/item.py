@@ -3,7 +3,7 @@ from typing import Union
 
 
 class ItemForCreateOrUpdate(BaseModel):
-    name: str
+    title: str
     completed: Union[bool, None] = None
 
 

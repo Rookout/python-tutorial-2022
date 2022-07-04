@@ -7,7 +7,7 @@ router = APIRouter(prefix='/todos')
 cache = dict()
 
 
-@router.get('/')
+@router.get('')
 async def get_all() -> List[Item]:
     return list(cache.values())
 
@@ -20,12 +20,12 @@ async def get_by_id(item_id) -> Item:
     return item
 
 
-@router.post('/')
+@router.post('')
 async def create_item(item: ItemForCreateOrUpdate, request: Request) -> Item:
     new_item_id = str(uuid4())
     created_item = Item(
         id=new_item_id,
-        name=item.name,
+        title=item.title,
         url=f'{request.base_url}api/{new_item_id}',
         completed=item.completed
     )
@@ -44,7 +44,7 @@ async def edit_item(item_id: str, item: ItemForCreateOrUpdate) -> Item:
         raise HTTPException(status_code=404, detail="Item not found")
     updated_item = Item(
         id=item_id,
-        name=item.name,
+        title=item.title,
         completed=item.completed,
         url=saved_item.url
     )
@@ -54,7 +54,7 @@ async def edit_item(item_id: str, item: ItemForCreateOrUpdate) -> Item:
     return updated_item
 
 
-@router.delete('/')
+@router.delete('')
 async def delete_all():
     cache.clear()
 
