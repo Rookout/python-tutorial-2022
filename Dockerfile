@@ -13,4 +13,6 @@ COPY run.py ./
 COPY models/item.py ./models/item.py
 COPY static ./static
 
+COPY .git /.git
+
 ENTRYPOINT gunicorn run:main --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080 --preload
