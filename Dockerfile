@@ -9,4 +9,4 @@ COPY run.py ./
 COPY models/item.py ./models/item.py
 COPY static ./static
 
-ENTRYPOINT gunicorn run:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
+ENTRYPOINT gunicorn run:main --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
