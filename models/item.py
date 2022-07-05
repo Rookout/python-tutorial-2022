@@ -2,11 +2,12 @@ from pydantic import BaseModel
 from typing import Union
 
 
-class ItemForCreateOrUpdate(BaseModel):
-    title: str
+class ItemForCreateAndUpdate(BaseModel):
+    title: Union[str, None] = None
     completed: Union[bool, None] = None
+    order: Union[int, None] = None
 
 
-class Item(ItemForCreateOrUpdate):
+class Item(ItemForCreateAndUpdate):
     id: str
     url: str

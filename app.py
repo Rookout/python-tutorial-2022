@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, APIRouter
 from uuid import uuid4
-from models.item import Item, ItemForCreateOrUpdate
+from models.item import Item, ItemForCreateAndUpdate
 from typing import List
 
 router = APIRouter(prefix='/todos')
@@ -21,13 +21,16 @@ async def get_by_id(item_id) -> Item:
 
 
 @router.post('')
-async def create_item(item: ItemForCreateOrUpdate, request: Request) -> Item:
+async def create_item(item: ItemForCreateAndUpdate, request: Request) -> Item:
     new_item_id = str(uuid4())
+    if item.title is None:
+        raise HTTPException(status_code=400, detail="Title is missing")
     created_item = Item(
         id=new_item_id,
         title=item.title,
         url=f'{request.base_url}todos/{new_item_id}',
-        completed=item.completed
+        completed=item.completed,
+        order=item.order
     )
 
     if created_item.completed is None:
@@ -37,7 +40,7 @@ async def create_item(item: ItemForCreateOrUpdate, request: Request) -> Item:
 
 
 @router.patch('/{item_id}')
-async def edit_item(item_id: str, item: ItemForCreateOrUpdate) -> Item:
+async def edit_item(item_id: str, item: ItemForCreateAndUpdate) -> Item:
     saved_item = cache.get(item_id, None)
 
     if saved_item is None:
@@ -46,8 +49,11 @@ async def edit_item(item_id: str, item: ItemForCreateOrUpdate) -> Item:
         id=item_id,
         title=item.title,
         completed=item.completed,
-        url=saved_item.url
+        url=saved_item.url,
+        order=item.order
     )
+    if updated_item.title is None:
+        updated_item.title = saved_item.title
     if updated_item.completed is None:
         updated_item.completed = saved_item.completed
     cache[item_id] = updated_item
