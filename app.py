@@ -26,7 +26,7 @@ async def create_item(item: ItemForCreateOrUpdate, request: Request) -> Item:
     created_item = Item(
         id=new_item_id,
         title=item.title,
-        url=f'{request.base_url}api/{new_item_id}',
+        url=f'{request.base_url}todos/{new_item_id}',
         completed=item.completed
     )
 
