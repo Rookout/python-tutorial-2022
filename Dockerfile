@@ -1,7 +1,13 @@
 FROM python:3.9.13-slim
+RUN apt-get -y update
+RUN apt-get -y install git wget gcc python3-dev g++
+
+
+
 
 WORKDIR /app
 COPY requirements.txt ./
+RUN pip install rook
 RUN pip install -r requirements.txt
 
 COPY app.py ./
