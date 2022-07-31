@@ -1,5 +1,9 @@
 FROM python:3.9.13-slim
 
+# only relevant for arm64 chips
+RUN apt-get -y update
+RUN apt-get -y install gcc python3-dev g++
+
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install -r requirements.txt

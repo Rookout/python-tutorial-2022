@@ -2,3 +2,4 @@ fastapi~=0.78.0
 pydantic~=1.9.1
 uvicorn[standard]~=0.18.2
 gunicorn~=20.1.0
+rook
